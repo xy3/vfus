@@ -28,20 +28,20 @@ fn (ep &EmailPass) validate() ? {
 
 ['/auth/signin'; post]
 fn (mut app App) auth_signin() vweb.Result {
-		ep := json.decode(EmailPass, app.req.data) or {
+	ep := json.decode(EmailPass, app.req.data) or {
 		app.set_status(400, 'no request body present')
 		return app.json({
 			'message': 'no request body present'
 		})
 	}
-		ep.validate() or {
+	ep.validate() or {
 		app.set_status(400, 'validation failed')
 		return app.json({
 			'message': err.msg
 		})
 	}
 
-
+	// here is the bug - compilation does not point out that 'email' in this query does not exist
 	users := sql app.db {
 		select from User where email == email
 	}
